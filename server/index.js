@@ -5,7 +5,7 @@ var savedNum = null;
 
 app.use( express.json() );
 
-app.listen(PORT, () => console.log(`It's running on http://localhost:${PORT}`));
+
 
 app.get('/saved', (req, res) => {
     res.status(200).send({
@@ -24,3 +24,5 @@ app.post('/saved', (req, res) => {
     }
 
 })
+
+app.listen(PORT, () => console.log(`It's running on http://localhost:${PORT}`));
