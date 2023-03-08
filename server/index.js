@@ -1,9 +1,11 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const PORT = 3001;
-var savedNum = null;
+let savedNum = null;
 
 app.use( express.json() );
+app.use( cors() );
 
 app.get('/saved', (req, res) => {
     res.status(200).send({
@@ -11,7 +13,7 @@ app.get('/saved', (req, res) => {
     });
 })
 
-app.post('/saved', (req, res) => {
+app.post('/save', (req, res) => {
     savedNum = req.body.value;
     if (!savedNum){
         res.status(400).send({ message: "I need a number."})
