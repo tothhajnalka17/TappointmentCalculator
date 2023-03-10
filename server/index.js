@@ -24,9 +24,6 @@ function writeNumber(number){
     fs.writeFile(filePath, number, err => {
     if (err) {
         console.error(err);
-    } else {
-        console.log("Number saved.");
-    }
     });
 }
 

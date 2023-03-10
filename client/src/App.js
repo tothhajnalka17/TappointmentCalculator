@@ -16,9 +16,8 @@ function App() {
       ReadMemory();
   }, [])
 
-  function ClickHandler(e){
+  function clickHandler(e){
     const clicked = e.target.value;
-    console.log(clicked);
 
     switch (clicked){
       case "+":
@@ -36,7 +35,7 @@ function App() {
         setOperation([0]);
         break;
       case "M+":
-        SaveToMemory()
+        saveToMemory()
           .then(()=>setSavedNum(operation.join("")));
         break;
       case "MR":
@@ -57,35 +56,64 @@ function App() {
     }
   }
 
-  function math(){
-    setOperation([eval(operation.join(""))]);
+  function inputValidation(input){
+    let regex = /[a-zA-Z ^@~`!@#$%^&()_\\';:"\?><,]/g;
+    return input.replace(regex, '');
   }
 
-  async function SaveToMemory(){
+  function math(){
+    let filteredInput = inputValidation(operation);
+    setOperation([eval(filteredInput)]);
+  }
+
+  async function saveToMemory(){
     setIsLoading(true);
     let url = "http://localhost:3001/save";
     let data = operation.join("");
+    let json;
 
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ operation: data }),
-    });
-    setIsLoading(false);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ operation: data }),
+      });
+      json = await response.json();
+      setIsLoading(false);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        console.log('There was a SyntaxError', error);
+      } else {
+        console.log('There was an error', error);
+        setOperation(["ERROR"]);
+      }
+    }
   }
 
   async function ReadMemory(){
-    setIsLoading(true);
-    let response = await fetch("http://localhost:3001/saved");
-    let data = await response.json();
-    setSavedNum(data.operation);
-    setIsLoading(false);
-    return data.operation;
+    let data;
+    try {
+      setIsLoading(true);
+      let response = await fetch("http://localhost:3001/saved");
+      data = await response.json();
+      setSavedNum(data.operation);
+      setIsLoading(false);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        console.log('There was a SyntaxError', error);
+      } else {
+        console.log('There was an error', error);
+        setOperation(["ERROR"]);
+      }
+    }
+    if (data) {
+      return data.operation;
+    }
   }
   
-  console.log("SavedNum is: " + savedNum);
+  
   return (
     <div className="App">
       <div className="header">
@@ -104,12 +132,12 @@ function App() {
                       key={i}
                       className={value === "=" ? "equals" : ""}
                       value={value}
-                      onClick={e=>ClickHandler(e)}
+                      onClick={e=>clickHandler(e)}
                       />)})}
         </ButtonBox>
       </Wrapper>
       <div className='footer'>
-        <p>Made by Hajnalka Tóth using ExpressJS and React on 3/8/2023</p>
+        <p>Made by Hajnalka Tóth using ExpressJS and React on 3/10/2023</p>
       </div>
     </div>
   );
